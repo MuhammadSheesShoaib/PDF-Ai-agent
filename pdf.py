@@ -12,16 +12,16 @@ from dotenv import load_dotenv
 load_dotenv()
 groq_api_key = os.getenv("GROQ_API_KEY")
 
-loader = PyPDFLoader("UN-NAMED SMTH.pdf")
+loader = PyPDFLoader("your_pdf_doc.pdf")
 documents = loader.load()
 
-# Split text into chunks
+# Splitting text into chunks
 splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=100)
 docs = splitter.split_documents(documents)
 
 embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
 
-# Store in FAISS vector database
+# Storing in FAISS vector database
 vector_db = FAISS.from_documents(docs, embeddings)
 retriever = vector_db.as_retriever()
 
@@ -33,12 +33,12 @@ prompt = ChatPromptTemplate.from_template(
 
 document_chain = create_stuff_documents_chain(llm, prompt)
 
-# Create a question mapper that will map from the input dictionary to the retriever
+# Creating a question mapper that will map from the input dictionary to the retriever
 question_mapper = RunnablePassthrough.assign(
     context=lambda x: retriever.invoke(x["question"])
 )
 
-# Create retrieval chain
+# Creating retrieval chain
 qa_chain = question_mapper | document_chain
 
 query = input("what you want to know from resume?")
